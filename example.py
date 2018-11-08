@@ -1,7 +1,7 @@
 import numpy as np
 import graph as gp
 
-def main():
+def runExample():
     graph =gp.Graph()
     graph.matrix =[
         [0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -21,8 +21,8 @@ def main():
     graph.matrix = np.transpose(graph.matrix)
     graph.nodeNum = len(graph.matrix[0])
     graph.nodeName = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O']
-    dis,pathList = gp.findShortestPath(graph,0,12)
+    dis,pathList = gp.findShortestPath(graph,'A','M',True)
     gp.printPathInfo(dis,pathList,graph)
 
 if __name__ == '__main__':
-    main()
+    runExample()

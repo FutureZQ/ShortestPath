@@ -18,45 +18,70 @@ def isConnect(dis):
     return (dis != 0)
 
 
-def checkVaild(matrixNodeNum, point1, point2):
-    return (point1 < matrixNodeNum and point1 < matrixNodeNum)
+def checkVaild(matrixNodeNum, startPoint, stopPoint):
+    return (startPoint < matrixNodeNum and startPoint < matrixNodeNum)
+
+def storePath(lastJumpNode,startPoint,stopPoint):
+    pathList = []
+    pathPoint = stopPoint
+    pathList.append(pathPoint)
+    while(pathPoint != startPoint):
+        pathPoint = lastJumpNode[pathPoint]
+        pathList.append(pathPoint)
+    return pathList
+
+def TranslateNodeName2NodePos(graph,startNodeName,stopNodeName):
+    startPoint = graph.nodeNum 
+    stopPoint = graph.nodeNum
+    NodeNameNum = len(graph.nodeName)
+    for i in range(NodeNameNum):
+        if(startNodeName == graph.nodeName[i]):
+            startPoint = i
+        if(stopNodeName == graph.nodeName[i]):
+            stopPoint = i
+    return startPoint,stopPoint # If name is wrong, it will  return error start and stop points
 
 
-def findShortestPath(graph, point1, point2):
-    if(checkVaild(graph.nodeNum, point1, point2) != True):
-        return []
+def findShortestPath(graph, startNode, stopNode,isNodeName=False):
+
+    if(isNodeName):
+        startPoint,stopPoint = TranslateNodeName2NodePos(graph,startNode,stopNode)
+
+    if(checkVaild(graph.nodeNum, startPoint, stopPoint) != True):
+        return 0,[]
 
     graphMatrix = graph.matrix
     nodeNum = graph.nodeNum
-    dis = graphMatrix[point1]  # record the shorted path to point1
+    dis = graphMatrix[startPoint][:] # record the shorted path to startPoint
     visited = np.zeros(nodeNum, dtype=np.int)
-    # record the last jump for certain node
-    lastJumpNode = np.zeros(nodeNum, dtype=np.int)
-    pathPoint = point2  # used for finding node in shortest path
-
+    lastJumpNode = np.zeros(nodeNum, dtype=np.int)    # record the last jump for certain node
+   
     for i in range(0, nodeNum):
         if(dis[i] != 0):
-            lastJumpNode[i] = point1
+            lastJumpNode[i] = startPoint
 
     for i in range(0, nodeNum):
         min = 0
-        for j in range(nodeNum):    # find shortest path
+        for j in range(nodeNum):    # find shortest path to start node
             if(visited[j] != 1 and isSmaller(dis[j], min)):
                 min = dis[j]
                 minPoint = j
-                visited[minPoint] = 1
+
+        visited[minPoint] = 1
+
         for j in range(nodeNum):  # update node distance
-            if(isConnect(graphMatrix[minPoint][j])
-               and isSmaller(graphMatrix[minPoint][j] + min, dis[j])):
+            if(
+                isConnect(dis[minPoint])
+                and isConnect(graphMatrix[minPoint][j])
+                and isSmaller(graphMatrix[minPoint][j] + min, dis[j])
+                ):
                 dis[j] = graphMatrix[minPoint][j] + min
                 lastJumpNode[j] = minPoint
+    
+    #store the path
+    pathList = storePath(lastJumpNode,startPoint,stopPoint)
 
-    pathList = []
-    pathList.append(pathPoint)
-    while(pathPoint != point1):
-        pathPoint = lastJumpNode[pathPoint]
-        pathList.append(pathPoint)
-    return dis[point2], pathList
+    return dis[stopPoint], pathList
 
 
 def printPathInfo(dis, pathList,graph):
